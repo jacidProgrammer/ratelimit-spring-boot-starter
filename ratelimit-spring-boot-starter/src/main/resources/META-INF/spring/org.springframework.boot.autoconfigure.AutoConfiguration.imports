@@ -1,0 +1,2 @@
+com.jacid.ratelimit.autoconfigure.RateLimitAutoConfiguration
+com.jacid.ratelimit.autoconfigure.RateLimitWebMvcAutoConfiguration

@@ -1,0 +1,44 @@
+server:
+  port: 18181
+
+spring:
+  application:
+    name: ratelimit-sample
+  data:
+    redis:
+      url: redis://localhost:16390
+      # Lo que espera una peticion si Redis no contesta, antes de aplicar fail-open o fail-closed.
+      timeout: 250ms
+      connect-timeout: 250ms
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics
+
+ratelimit:
+  key-prefix: sample
+  fail-open: true
+  policies:
+    api:
+      algorithm: token-bucket
+      limit: 5
+      period: 1s
+      burst: 10
+      key: header:X-Api-Key
+    login:
+      algorithm: sliding-window-log
+      limit: 5
+      period: 1m
+      key: ip
+      fail-open: false
+    reports:
+      algorithm: sliding-window-counter
+      limit: 100
+      period: 1m
+      key: global
+    export:
+      algorithm: token-bucket
+      limit: 20
+      period: 1m

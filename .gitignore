@@ -1,0 +1,10 @@
+target/
+.idea/
+*.iml
+.DS_Store
+.env
+.env.*
+*.pem
+*.key
+.claude/HANDOFF.auto.md
+.claude/settings.local.json

@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./mvnw verify:*)",
+      "Bash(./mvnw test:*)",
+      "Bash(./mvnw -B -ntp -q -DskipTests package)",
+      "Bash(./mvnw -B -ntp -pl ratelimit-spring-boot-starter test:*)",
+      "Bash(./mvnw -DskipTests install)",
+      "Bash(TEST_REDIS_URL=redis://localhost:16390 ./mvnw verify:*)"
+    ]
+  }
+}

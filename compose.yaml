@@ -1,0 +1,7 @@
+# Redis para la demo. El puerto no es el 6379 para no chocar con otro Redis de la maquina.
+name: ratelimit-demo
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "16390:6379"
