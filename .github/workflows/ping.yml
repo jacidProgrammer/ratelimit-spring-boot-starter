@@ -1,9 +1,0 @@
-# Temporal: comprobar que GitHub registra workflows en este repo. Se borra.
-name: ping
-on:
-  workflow_dispatch:
-jobs:
-  ping:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo pong
