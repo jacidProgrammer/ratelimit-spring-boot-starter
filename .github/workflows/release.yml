@@ -1,0 +1,75 @@
+# Publica el starter en Maven Central al crear un tag v*. La version la manda el pom: el tag debe ser
+# exactamente v<project.version> o el job falla antes de compilar.
+#
+# Prueba en seco (sin subir nada): Actions > Release to Maven Central > Run workflow, dry_run = true.
+# Secretos necesarios (Settings > Secrets and variables > Actions), ver docs/PUBLICAR.md:
+#   MAVEN_CENTRAL_USERNAME, MAVEN_CENTRAL_TOKEN, GPG_PRIVATE_KEY, GPG_PASSPHRASE
+name: Release to Maven Central
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Compilar, firmar y empaquetar sin subir a Central'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          # Escribe <server><id>central</id> en ~/.m2/settings.xml con las variables de entorno
+          # indicadas (los valores reales van en el paso de deploy) e importa la clave GPG.
+          server-id: central
+          server-username: MAVEN_CENTRAL_USERNAME
+          server-password: MAVEN_CENTRAL_TOKEN
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+
+      - name: El tag coincide con la version del pom
+        if: github.event_name == 'push'
+        run: |
+          version="$(./mvnw -q -ntp help:evaluate -Dexpression=project.version -DforceStdout)"
+          echo "pom=$version tag=$GITHUB_REF_NAME"
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::El tag $GITHUB_REF_NAME no coincide con la version del pom ($version). Sube la version en el pom y vuelve a etiquetar."
+            exit 1
+          fi
+
+      - name: Build, tests y firma (sin subir)
+        if: env.DRY_RUN == 'true'
+        env:
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        # Sin clave GPG en los secretos se salta la firma para que el dry-run siga siendo util
+        run: ./mvnw -B -ntp -Prelease -Dgpg.skip=${{ secrets.GPG_PRIVATE_KEY == '' }} verify
+
+      - name: Build, tests, firma y publicacion en Central
+        if: env.DRY_RUN != 'true'
+        env:
+          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_CENTRAL_TOKEN: ${{ secrets.MAVEN_CENTRAL_TOKEN }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: ./mvnw -B -ntp -Prelease deploy
+
+      - name: Artefactos generados
+        if: always()
+        run: ls -l ratelimit-spring-boot-starter/target/*.jar ratelimit-spring-boot-starter/target/*.asc 2>/dev/null || true

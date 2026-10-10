@@ -15,6 +15,7 @@ Paquete `com.jacid.ratelimit`. Tres algoritmos en `src/main/resources/com/jacid/
 - Arranque: `docker compose up -d --wait` (Redis en :16390) y `java -jar ratelimit-sample/target/ratelimit-sample-0.1.0.jar` (:18181)
 - Demo E2E: `scripts/demo.sh` (puertos 16390, 18181, 18182 libres; se limpia solo)
 - Mutaciones: `python3 scripts/mutation-check.py [filtro]` (47 mutaciones, ~10 min)
+- Release en seco: `scripts/release-dry-run.sh [vX.Y.Z]` (= `./mvnw -DskipTests -Prelease -Dgpg.skip verify`, exige 3 jars). Publicar de verdad: tag `v<version>` + push; pasos externos en `docs/PUBLICAR.md`
 - Lint/formato: no hay configurado. No inventes uno (google-java-format falla en JDK 25+).
 
 ## Cómo se verifica una entrega
