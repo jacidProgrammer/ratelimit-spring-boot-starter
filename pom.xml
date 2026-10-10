@@ -10,12 +10,37 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.jacid</groupId>
+    <groupId>io.github.jacidprogrammer</groupId>
     <artifactId>ratelimit-parent</artifactId>
     <version>0.1.0</version>
     <packaging>pom</packaging>
     <name>ratelimit-parent</name>
     <description>Rate limiter distribuido sobre Redis, empaquetado como starter de Spring Boot</description>
+    <url>https://github.com/jacidProgrammer/ratelimit-spring-boot-starter</url>
+
+    <licenses>
+        <license>
+            <name>Apache-2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>jacidProgrammer</id>
+            <name>José Antonio Cid</name>
+            <email>joseantoniocid.programmer@gmail.com</email>
+            <url>https://github.com/jacidProgrammer</url>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:https://github.com/jacidProgrammer/ratelimit-spring-boot-starter.git</connection>
+        <developerConnection>scm:git:git@github.com:jacidProgrammer/ratelimit-spring-boot-starter.git</developerConnection>
+        <url>https://github.com/jacidProgrammer/ratelimit-spring-boot-starter</url>
+        <tag>v0.1.0</tag>
+    </scm>
 
     <modules>
         <module>ratelimit-spring-boot-starter</module>
@@ -24,5 +49,76 @@
 
     <properties>
         <java.version>21</java.version>
+        <central-publishing.version>0.11.0</central-publishing.version>
+        <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
     </properties>
+
+    <!-- Perfil de publicacion en Maven Central: ./mvnw -Prelease deploy (en CI) o
+         ./mvnw -Prelease -Dgpg.skip verify (en local, sin firmar). Fuera del perfil el build no cambia. -->
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${maven-gpg-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <!-- Sin pinentry: la passphrase llega por MAVEN_GPG_PASSPHRASE (CI) -->
+                            <gpgArguments>
+                                <arg>--pinentry-mode</arg>
+                                <arg>loopback</arg>
+                            </gpgArguments>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>${central-publishing.version}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <!-- Credenciales: <server><id>central</id> en settings.xml, lo escribe el workflow -->
+                            <publishingServerId>central</publishingServerId>
+                            <autoPublish>true</autoPublish>
+                            <waitUntil>published</waitUntil>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

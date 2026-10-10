@@ -59,21 +59,33 @@ Retry-After: 58
 
 ## Instalación
 
-El artefacto no está publicado en ningún repositorio. Se instala en el repositorio local de Maven:
+Se publica en Maven Central con el groupId `io.github.jacidprogrammer` (la primera versión será la 0.1.0;
+hasta que exista el tag `v0.1.0` en GitHub no está en Central).
 
-```bash
-./mvnw -DskipTests install
-```
-
-Y se añade a la aplicación:
+Maven:
 
 ```xml
 <dependency>
-    <groupId>com.jacid</groupId>
+    <groupId>io.github.jacidprogrammer</groupId>
     <artifactId>ratelimit-spring-boot-starter</artifactId>
     <version>0.1.0</version>
 </dependency>
 ```
+
+Gradle (Kotlin DSL):
+
+```kotlin
+implementation("io.github.jacidprogrammer:ratelimit-spring-boot-starter:0.1.0")
+```
+
+Gradle (Groovy):
+
+```groovy
+implementation 'io.github.jacidprogrammer:ratelimit-spring-boot-starter:0.1.0'
+```
+
+Para probar una versión sin publicar se instala en el repositorio local de Maven con `./mvnw -DskipTests install`.
+Cómo se publica una versión nueva: [docs/PUBLICAR.md](docs/PUBLICAR.md).
 
 La conexión con Redis es la de la aplicación, `spring.data.redis.*`. El starter no abre otra.
 
